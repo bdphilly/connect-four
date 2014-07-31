@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+  <head>
+    <title>Connect Four</title>
+    <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <link href='http://fonts.googleapis.com/css?family=Nunito' rel='stylesheet' type='text/css'>
+    <style type="text/css">
+      body {
+        width: 100%;
+        font-family: "Nunito";
+        background: rgb(70, 70, 70);
+        color: white;
+        margin-top: 100px;
+      }
+
+      #game {
+        width: 570px;
+        height: 455px;
+        border-right: 20px #2E9DFF solid;
+        border-left: 20px #2E9DFF solid;
+        color: purple;
+        background-color: #F9FF52;
+        margin: 0px auto; 
+      }
+
+      .column {
+        border: 1px black solid;
+        width: 75px;
+        height: 450px;
+        float: left;
+        margin: 2px;
+      }
+
+      .column:hover {
+        background-color: lightblue;
+      }
+
+      .square {        
+        border: 1px black solid;
+        width: 70px;
+        height: 70px;
+        margin: 2px;
+        border-radius: 40px;
+      }
+
+      .red {
+        background-color: red;
+      }
+
+      .black {
+        background-color: black;
+      }
+
+      #player {
+        margin-top: 50px;
+        font-size: 24px;
+        text-align: center;
+      }
+
+      #title {
+        font-size: 56px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="title">Connect Four</div>
+    <div id="game"></div>
+    <div id="player"></div>
+  </body>
+</html>
+
+<script type="text/javascript"> 
+  var setupGame = function () {
+    CURRENTPLAYER = "Red";
+    GRID = [];
+    for (var col = 0; col < 7; col++) {
+      GRID.push([0,0,0,0,0,0]);
+    }
+  };
+
+  var render = function () {
+    $('#game').empty();
+    $('#player').empty();
+    $('#player').append("Current Player: " + '<span style=color:' + CURRENTPLAYER + '>' + CURRENTPLAYER + '</span>'); 
+    for (var col = 0; col < 7; col++) {
+      $('#game').append('<div id="col' + col + '"class="column"></div>');
+      for (var row = 0; row < 6; row++) {
+        if (GRID[col][row] === 1) {
+          $('#col' + col).append('<div class="red square"></div>');  
+        } else if (GRID[col][row] === 2) {
+          $('#col' + col).append('<div class="black square"></div>');  
+        } else {
+          $('#col' + col).append('<div class="square"></div>');  
+        }
+      };
+    };
+    if (isWon()) {
+      var winner = "";
+      CURRENTPLAYER === "Red" ? winner = "Black" : winner = "Red";
+      $('#player').empty();
+      $('#player').append('<span style=color:' + winner + '>' + winner + '</span>' + " Player Wins!");
+    } else {
+      getClick();      
+    }
+  };
+
+  var getClick = function () {
+    for (var col = 0; col < 7; col++) {
+      $('#col' + col).click(function (event) {
+        var id = event.currentTarget.id;
+        var piece = parseInt(id[id.length-1]);
+        for (var i = 5; i >= 0; i--) {
+          if (GRID[piece][i] === 0) {
+            if (CURRENTPLAYER === "Red") {
+              CURRENTPLAYER = "Black"
+              GRID[piece][i] = 1;
+            } else {
+              CURRENTPLAYER = "Red";
+              GRID[piece][i] = 2;
+            }
+            break;
+          }
+        };
+
+        render();
+      })
+    };
+  };
+
+  var isWon = function () {
+    if (checkDirections()) {
+      return true;
+    }
+
+    return false;
+  };
+
+  var checkDirections = function () {
+    var directions = [
+      [0, 1],
+      [1, 0],
+      [1, 1],
+      [1, -1]
+    ];
+
+    for (var c = 0; c < 7; c++) {        
+      for (var r = 0; r < 6; r++) {
+        if (GRID[c][r] !== 0) {
+          for (var dir = 0; dir < directions.length; dir ++) {
+            if (c + directions[dir][0] * 3 < 7 && r + directions[dir][1] * 3 < 6 && r + directions[dir][1] * 3 > 0) {      
+              var counter = 1;
+              var currentElement = GRID[c][r];
+              for (var i = 1; i < 4; i++) {
+                if (GRID[c + directions[dir][0] * i][r + directions[dir][1] * i] === currentElement) {
+                  counter += 1
+                } else {
+                  break
+                }
+                if (counter === 4) {
+                  return true;
+                }
+              };
+            }
+          };
+        }
+      };
+    };
+
+    return false;
+  };
+
+  setupGame();
+  render();
+</script>
